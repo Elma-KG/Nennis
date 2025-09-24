@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/recipes")
@@ -17,33 +18,34 @@ public class RecipeController {
     }
 
     @GetMapping
-    public ResponseEntity<List<RecipeDTO>> getAll(RecipeFilters filters) {
+    public ResponseEntity<List<RecipeDTO>> getAll(@ModelAttribute RecipeFilters filters) {
         return ResponseEntity.ok(service.getAll(filters));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<RecipeDTO> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(service.getById(id));
+    public ResponseEntity<RecipeDTO> getById(@PathVariable UUID id) {
+        return ResponseEntity.ok(service.getRecipeById(id));
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<RecipeDTO>> search(@RequestParam String q, RecipeFilters filters) {
+    public ResponseEntity<List<RecipeDTO>> search(@RequestParam("q") String q,
+                                                  @ModelAttribute RecipeFilters filters) {
         return ResponseEntity.ok(service.search(q, filters));
     }
 
     @PostMapping
     public ResponseEntity<RecipeDTO> add(@RequestBody RecipeDTO dto) {
-        return ResponseEntity.ok(service.add(dto));
+        return ResponseEntity.ok(service.addRecipe(dto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<RecipeDTO> update(@PathVariable Long id, @RequestBody RecipeDTO dto) {
-        return ResponseEntity.ok(service.update(id, dto));
+    public ResponseEntity<RecipeDTO> update(@PathVariable UUID id, @RequestBody RecipeDTO dto) {
+        return ResponseEntity.ok(service.updateRecipe(id, dto));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        service.delete(id);
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+        service.deleteRecipe(id);
         return ResponseEntity.noContent().build();
     }
 }

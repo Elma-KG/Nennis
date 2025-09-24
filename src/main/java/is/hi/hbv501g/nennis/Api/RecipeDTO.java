@@ -11,6 +11,6 @@ public class RecipeDTO {
     public String title;
     public String description;
     public Diet dietCode;
-    public Set<Integer> tagIds;
+    public Set<UUID> tagIds;
     public Set<Allergen> allergens;
 }

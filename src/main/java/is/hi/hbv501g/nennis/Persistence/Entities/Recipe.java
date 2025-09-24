@@ -1,87 +1,82 @@
 package is.hi.hbv501g.nennis.Persistence.Entities;
 
+import is.hi.hbv501g.nennis.Enums.Allergen;
+import is.hi.hbv501g.nennis.Enums.Diet;
 import jakarta.persistence.*;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Table(name = "recipe")
 public class Recipe {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Long id;
+    @Column(name = "recipe_id", nullable = false, updatable = false, columnDefinition = "uuid")
+    private UUID recipeId;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @Column(name = "title", nullable = false)
+    private String title;
 
-    @Column(name = "name")
-    private String name;
+    @Column(name = "description", columnDefinition = "TEXT")
+    private String description;
 
-    @Column(name = "text", columnDefinition = "TEXT")
-    private String text;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "diet_code", nullable = false)
+    private Diet dietCode = Diet.NONE;
 
-    @Column(name = "rating")
-    private int rating;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "recipe_tags",
+            joinColumns = @JoinColumn(name = "recipe_id", referencedColumnName = "recipe_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id")
+    )
+    private Set<Tag> tags = new HashSet<>();
 
-    @Column(name = "difficulty")
-    private String difficulty;
-
-    @Column(name = "vegetarian")
-    private boolean vegetarian;
-
-    @Column(name = "vegan")
-    private boolean vegan;
-
-    @Column(name = "dairy_free")
-    private boolean dairyFree;
-
-    @Column(name = "gluten_free")
-    private boolean glutenFree;
-
-    @Column(name = "servings")
-    private int servings;
-
-    @Column(name = "categories")
-    private String categories;
+    @ElementCollection(targetClass = Allergen.class, fetch = FetchType.LAZY)
+    @CollectionTable(name = "recipe_allergens", joinColumns = @JoinColumn(name = "recipe_id"))
+    @Enumerated(EnumType.STRING)
+    @Column(name = "allergen")
+    private Set<Allergen> allergens = new HashSet<>();
 
     public Recipe() {}
 
-    public Recipe(Long userId, String name, String text, int rating, String difficulty, boolean vegetarian, boolean vegan, boolean dairyFree, boolean glutenFree, int servings, String categories) {
-        this.userId = userId;
-        this.name = name;
-        this.text = text;
-        this.rating = rating;
-        this.difficulty = difficulty;
-        this.vegetarian = vegetarian;
-        this.vegan = vegan;
-        this.dairyFree = dairyFree;
-        this.glutenFree = glutenFree;
-        this.servings = servings;
-        this.categories = categories;
+    public Recipe(UUID recipeId, String title, String description, Diet dietCode, Set<Tag> tags, Set<Allergen> allergens) {
+        this.recipeId = recipeId != null ? recipeId : UUID.randomUUID();
+        this.title = title;
+        this.description = description;
+        this.dietCode = dietCode == null ? Diet.NONE : dietCode;
+        if (tags != null) this.tags = tags;
+        if (allergens != null) this.allergens = allergens;
     }
 
-    public Long getId() { return id; }
-    public Long getUserId() { return userId; }
-    public String getName() { return name; }
-    public String getText() { return text; }
-    public int getRating() { return rating; }
-    public String getDifficulty() { return difficulty; }
-    public boolean isVegetarian() { return vegetarian; }
-    public boolean isVegan() { return vegan; }
-    public boolean isDairyFree() { return dairyFree; }
-    public boolean isGlutenFree() { return glutenFree; }
-    public int getServings() { return servings; }
-    public String getCategories() { return categories; }
+    @PrePersist
+    public void ensureId() {
+        if (recipeId == null) recipeId = UUID.randomUUID();
+    }
 
-    public void setId(Long id) { this.id = id; }
-    public void setUserId(Long userId) { this.userId = userId; }
-    public void setName(String name) { this.name = name; }
-    public void setText(String text) { this.text = text; }
-    public void setRating(int rating) { this.rating = rating; }
-    public void setDifficulty(String difficulty) { this.difficulty = difficulty; }
-    public void setVegetarian(boolean vegetarian) { this.vegetarian = vegetarian; }
-    public void setVegan(boolean vegan) { this.vegan = vegan; }
-    public void setDairyFree(boolean dairyFree) { this.dairyFree = dairyFree; }
-    public void setGlutenFree(boolean glutenFree) { this.glutenFree = glutenFree; }
-    public void setServings(int servings) { this.servings = servings; }
-    public void setCategories(String categories) { this.categories = categories; }
+
+    public UUID getRecipeId() { return recipeId; }
+    public String getTitle() { return title; }
+    public String getDescription() { return description; }
+    public Diet getDietCode() { return dietCode; }
+    public Set<Allergen> getAllergens() { return allergens; }
+    public Set<Tag> getTags() { return tags; }
+    public void setRecipeId(UUID recipeId) { this.recipeId = recipeId; }
+    public void setTitle(String title) { this.title = title; }
+    public void setDescription(String description) { this.description = description; }
+    public void setDietCode(Diet dietCode) { this.dietCode = (dietCode == null ? Diet.NONE : dietCode); }
+    public void setAllergens(Set<Allergen> allergens) { this.allergens = (allergens == null ? new HashSet<>() : allergens); }
+    public void setTags(Set<Tag> tags) { this.tags = (tags == null ? new HashSet<>() : tags); }
+
+
+    public boolean hasTag(Tag tag) { return tag != null && tags.contains(tag); }
+    public boolean fitsDiet(Diet diet) { return diet == null || diet == Diet.NONE || this.dietCode == diet; }
+    public boolean isSafeFor(Set<Allergen> avoid) {
+        if (avoid == null || avoid.isEmpty()) return true;
+        for (Allergen a : avoid) {
+            if (this.allergens.contains(a)) return false;
+        }
+        return true;
+    }
 }

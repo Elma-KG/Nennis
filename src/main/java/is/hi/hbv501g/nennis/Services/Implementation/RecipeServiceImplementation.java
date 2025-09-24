@@ -2,15 +2,18 @@ package is.hi.hbv501g.nennis.Services.Implementation;
 
 import is.hi.hbv501g.nennis.Api.RecipeDTO;
 import is.hi.hbv501g.nennis.Api.RecipeFilters;
+import is.hi.hbv501g.nennis.Enums.Diet;
 import is.hi.hbv501g.nennis.Persistence.Entities.Recipe;
 import is.hi.hbv501g.nennis.Persistence.Entities.Tag;
 import is.hi.hbv501g.nennis.Persistence.Repositories.RecipeRepository;
 import is.hi.hbv501g.nennis.Services.RecipeService;
+import jakarta.persistence.criteria.SetJoin;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 

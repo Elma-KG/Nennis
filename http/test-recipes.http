@@ -1,0 +1,11 @@
+### Create a new recipe
+POST http://localhost:8080/recipes
+Content-Type: application/json
+
+{
+  "title": "Tofu Stir Fry",
+  "description": "Quick dinner",
+  "dietCode": null,
+  "allergens": [],
+  "tagIds": []
+}

@@ -1,20 +1,20 @@
 package is.hi.hbv501g.nennis.Services.Implementation;
 
-import is.hi.hbv501g.nennis.Api.RecipeDTO;
 import is.hi.hbv501g.nennis.Api.RecipeFilters;
-import is.hi.hbv501g.nennis.Enums.Diet;
+import is.hi.hbv501g.nennis.Persistence.Entities.Allergen;
+import is.hi.hbv501g.nennis.Persistence.Entities.Diet;
 import is.hi.hbv501g.nennis.Persistence.Entities.Recipe;
 import is.hi.hbv501g.nennis.Persistence.Entities.Tag;
 import is.hi.hbv501g.nennis.Persistence.Repositories.RecipeRepository;
 import is.hi.hbv501g.nennis.Services.RecipeService;
-import jakarta.persistence.criteria.SetJoin;
+import is.hi.hbv501g.nennis.dto.RecipeDTO;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
-import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,38 +23,69 @@ public class RecipeServiceImplementation implements RecipeService {
 
     private final RecipeRepository recipeRepo;
 
+    @PersistenceContext
+    private EntityManager em;
+
     public RecipeServiceImplementation(RecipeRepository recipeRepo) {
         this.recipeRepo = recipeRepo;
     }
 
+    /**
+     * Gets all recipes that match the given filters.
+     * 
+     * @param filters the filters to apply to the recipes. If null, no filters are applied.
+     * @return a list of RecipeDTO objects that match the filters.
+     */
     @Override
     public List<RecipeDTO> getAll(RecipeFilters filters) {
-        return recipeRepo.findAll(toSpec(filters)).stream().map(this::toDto).toList();
+        if (filters == null)
+            filters = new RecipeFilters();
+        List<Recipe> all = recipeRepo.findAll(Sort.by(Sort.Direction.ASC, "title"));
+        RecipeFilters finalFilters = filters;
+        RecipeFilters finalFilters1 = filters;
+        RecipeFilters finalFilters2 = filters;
+        RecipeFilters finalFilters3 = filters;
+        return all.stream()
+                .filter(r -> matchesQuery(r, finalFilters.query))
+                .filter(r -> matchesDiet(r, finalFilters1.diet))
+                .filter(r -> matchesTags(r, finalFilters2.tagIds))
+                .filter(r -> excludesAllergens(r, finalFilters3.excludeAllergens))
+                .map(this::toDto)
+                .toList();
     }
+
+
 
     @Override
     public RecipeDTO getRecipeById(UUID recipeId) {
-        return recipeRepo.findById(recipeId).map(this::toDto).orElseThrow();
+        Recipe r = recipeRepo.findById(recipeId)
+                .orElseThrow(() -> new NoSuchElementException("Recipe not found: " + recipeId));
+        return toDto(r);
     }
 
     @Override
     public List<RecipeDTO> search(String query, RecipeFilters filters) {
-        if (filters == null) filters = new RecipeFilters();
+        if (filters == null)
+            filters = new RecipeFilters();
         filters.query = query;
-        return recipeRepo.findAll(toSpec(filters)).stream().map(this::toDto).toList();
+        return getAll(filters);
     }
 
     @Override
     public RecipeDTO addRecipe(RecipeDTO dto) {
-        Recipe saved = recipeRepo.save(toEntity(dto));
+        Recipe r = new Recipe();
+        copyFromDto(dto, r);
+        Recipe saved = recipeRepo.save(r);
         return toDto(saved);
     }
 
     @Override
     public RecipeDTO updateRecipe(UUID id, RecipeDTO dto) {
-        Recipe r = recipeRepo.findById(id).orElseThrow();
-        updateEntity(r, dto);
-        return toDto(recipeRepo.save(r));
+        Recipe r = recipeRepo.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Recipe not found: " + id));
+        copyFromDto(dto, r);
+        Recipe saved = recipeRepo.save(r);
+        return toDto(saved);
     }
 
     @Override
@@ -62,19 +93,62 @@ public class RecipeServiceImplementation implements RecipeService {
         recipeRepo.deleteById(recipeId);
     }
 
-    private Recipe toEntity(RecipeDTO d) {
-        Set<Tag> tags = d.tagIds == null ? Set.of() :
-                d.tagIds.stream().map(id -> { Tag t = new Tag(); t.setId(id); return t; }).collect(Collectors.toSet());
-        return new Recipe(
-                d.recipeId,
-                d.title,
-                d.description,
-                d.dietCode == null ? Diet.NONE : d.dietCode,
-                tags,
-                d.allergens
-        );
+    /**
+     * Checks if the recipe matches the query
+     * 
+     * @param r
+     * @param query
+     * @return
+     */
+    private boolean matchesQuery(Recipe r, String query) {
+        if (query == null || query.isBlank())
+            return true;
+        String q = query.toLowerCase(Locale.ROOT);
+        String title = Optional.ofNullable(r.getTitle()).orElse("").toLowerCase(Locale.ROOT);
+        String desc = Optional.ofNullable(r.getDescription()).orElse("").toLowerCase(Locale.ROOT);
+        return title.contains(q) || desc.contains(q);
     }
 
+    private boolean matchesDiet(Recipe r, Diet diet) {
+        if (diet == null)
+            return true;
+        return diet.equals(r.getDietCode());
+    }
+
+    /**
+     * Checks if the recipe matches the tags
+     * 
+     * @param r
+     * @param requiredTagIds
+     * @return
+     */
+    private boolean matchesTags(Recipe r, Set<UUID> requiredTagIds) {
+        if (requiredTagIds == null || requiredTagIds.isEmpty())
+            return true;
+        Set<Long> recipeTagIds = Optional.ofNullable(r.getTags())
+                .orElseGet(Set::of)
+                .stream()
+                .map(Tag::getId)
+                .collect(Collectors.toSet());
+        return recipeTagIds.containsAll(requiredTagIds);
+    }
+
+    private boolean excludesAllergens(Recipe r, Set<Allergen> toExclude) {
+        if (toExclude == null || toExclude.isEmpty())
+            return true;
+        Set<Allergen> allergens = Optional.ofNullable(r.getAllergens()).orElseGet(Set::of);
+        for (var a : toExclude)
+            if (allergens.contains(a))
+                return false;
+        return true;
+    }
+
+    /**
+     * Converts a Recipe object into a RecipeDTO object.
+     * 
+     * @param r the Recipe object to convert.
+     * @return the converted RecipeDTO object.
+     */
     private RecipeDTO toDto(Recipe r) {
         RecipeDTO d = new RecipeDTO();
         d.recipeId = r.getRecipeId();
@@ -82,46 +156,34 @@ public class RecipeServiceImplementation implements RecipeService {
         d.description = r.getDescription();
         d.dietCode = r.getDietCode();
         d.allergens = r.getAllergens();
-        d.tagIds = r.getTags() == null ? Set.of() : r.getTags().stream().map(Tag::getId).collect(Collectors.toSet());
+        d.tagIds = Optional.ofNullable(r.getTags())
+                .orElseGet(Set::of)
+                .stream()
+                .map(Tag::getId)
+                .collect(Collectors.toSet());
         return d;
     }
 
-    private void updateEntity(Recipe r, RecipeDTO d) {
-        r.setTitle(d.title);
-        r.setDescription(d.description);
-        r.setDietCode(d.dietCode == null ? Diet.NONE : d.dietCode);
-        r.setAllergens(d.allergens);
-        r.setTags(d.tagIds == null ? Set.of() :
-                d.tagIds.stream().map(id -> { Tag t = new Tag(); t.setId(id); return t; }).collect(Collectors.toSet()));
-    }
-
-    private Specification<Recipe> toSpec(RecipeFilters f) {
-        return (root, q, cb) -> {
-            var p = cb.conjunction();
-            if (f == null) return p;
-
-            if (f.diet != null && f.diet != Diet.NONE)
-                p.getExpressions().add(cb.equal(root.get("dietCode"), f.diet));
-
-            if (f.excludeAllergens != null && !f.excludeAllergens.isEmpty()) {
-                var allergensJoin = root.joinSet("allergens");
-                p.getExpressions().add(cb.not(allergensJoin.in(f.excludeAllergens)));
-            }
-
-            if (f.tagIds != null && !f.tagIds.isEmpty()) {
-                SetJoin<Recipe, Tag> tagJoin = root.joinSet("tags");
-                p.getExpressions().add(tagJoin.get("id").in(f.tagIds));
-                q.distinct(true);
-            }
-
-            if (f.query != null && !f.query.isBlank()) {
-                String like = "%" + f.query.toLowerCase() + "%";
-                p.getExpressions().add(cb.or(
-                        cb.like(cb.lower(root.get("title")), like),
-                        cb.like(cb.lower(root.get("description")), like)
-                ));
-            }
-            return p;
-        };
+    /**
+     * Copies the data from a RecipeDTO object into a Recipe object.
+     *
+     * @param d the RecipeDTO object to copy from.
+     * @param r the Recipe object to copy into.
+     */
+    private void copyFromDto(RecipeDTO d, Recipe r) {
+        if (d.title != null)
+            r.setTitle(d.title);
+        if (d.description != null)
+            r.setDescription(d.description);
+        if (d.dietCode != null)
+            r.setDietCode(d.dietCode);
+        if (d.allergens != null)
+            r.setAllergens(d.allergens);
+        if (d.tagIds != null) {
+            Set<Tag> tags = d.tagIds.stream()
+                    .map(id -> em.getReference(Tag.class, id))
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
+            r.setTags(tags);
+        }
     }
 }

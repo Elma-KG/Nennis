@@ -1,7 +1,7 @@
-package is.hi.hbv501g.nennis.Api;
+package is.hi.hbv501g.nennis.dto;
 
-import is.hi.hbv501g.nennis.Enums.Allergen;
-import is.hi.hbv501g.nennis.Enums.Diet;
+import is.hi.hbv501g.nennis.Persistence.Entities.Allergen;
+import is.hi.hbv501g.nennis.Persistence.Entities.Diet;
 
 import java.util.Set;
 import java.util.UUID;
@@ -11,6 +11,6 @@ public class RecipeDTO {
     public String title;
     public String description;
     public Diet dietCode;
-    public Set<UUID> tagIds;
+    public Set<Long> tagIds;
     public Set<Allergen> allergens;
 }

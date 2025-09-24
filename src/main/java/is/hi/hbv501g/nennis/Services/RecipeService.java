@@ -1,6 +1,6 @@
 package is.hi.hbv501g.nennis.Services;
 
-import is.hi.hbv501g.nennis.Api.RecipeDTO;
+import is.hi.hbv501g.nennis.dto.RecipeDTO;
 import is.hi.hbv501g.nennis.Api.RecipeFilters;
 import java.util.List;
 import java.util.UUID;

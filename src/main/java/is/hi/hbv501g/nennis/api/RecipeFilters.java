@@ -1,4 +1,4 @@
-package is.hi.hbv501g.nennis.Api;
+package is.hi.hbv501g.nennis.api;
 
 import is.hi.hbv501g.nennis.Persistence.Entities.Allergen;
 import is.hi.hbv501g.nennis.Persistence.Entities.Diet;

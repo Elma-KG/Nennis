@@ -4,7 +4,7 @@ Content-Type: application/json
 
 {
   "email": "demo@example.com",
-  "password": "secret",
+  "password": "demopass",
   "name": "Demo"
 }
 
@@ -14,5 +14,13 @@ Content-Type: application/json
 
 {
   "email": "demo@example.com",
-  "password": "secret"
+  "password": "demopass"
 }
+
+> {%
+    client.global.set("token", jsonBody.token);
+%}
+
+### Me
+GET http://localhost:8080/api/users/me
+Authorization: Bearer {{token}}

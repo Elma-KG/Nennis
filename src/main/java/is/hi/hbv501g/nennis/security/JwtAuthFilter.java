@@ -8,7 +8,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -16,31 +15,44 @@ import java.io.IOException;
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
-    private final AppUserDetailsService userDetailsService;
+    private final AppUserDetailsService uds;
 
     public JwtAuthFilter(JwtService jwtService, AppUserDetailsService uds) {
         this.jwtService = jwtService;
-        this.userDetailsService = uds;
+        this.uds = uds;
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String p = request.getServletPath();
+        return p.startsWith("/api/auth/");
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
-        throws ServletException, IOException {
+            throws ServletException, IOException {
 
-        String header = req.getHeader("Authorization");
-        String token = (StringUtils.hasText(header) && header.startsWith("Bearer ")) ? header.substring(7) : null;
+        String auth = req.getHeader("Authorization");
 
-        if (token != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        // No Bearer token? Just continue; protected endpoints will still be blocked by Security config.
+        if (auth != null && auth.startsWith("Bearer ")) {
+            String token = auth.substring(7);
             try {
-                String subject = jwtService.extractSubject(token);
-                var userDetails = userDetailsService.loadUserByUsername(subject);
-                var auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
-                SecurityContextHolder.getContext().setAuthentication(auth);
-            } catch (Exception ignored) {
+                String email = jwtService.extractSubject(token);
 
+                // Only set authentication if not already set
+                if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    var userDetails = uds.loadUserByUsername(email);
+                    var authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails, null, userDetails.getAuthorities());
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
+            } catch (Exception ignored) {
+                // Invalid/expired token -> leave unauthenticated and continue
             }
-            chain.doFilter(req, res);
         }
+
+        chain.doFilter(req, res);
     }
 }

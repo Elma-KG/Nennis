@@ -1,6 +1,6 @@
 package is.hi.hbv501g.nennis.Services.Implementation;
 
-import is.hi.hbv501g.nennis.Api.RecipeFilters;
+import is.hi.hbv501g.nennis.api.RecipeFilters;
 import is.hi.hbv501g.nennis.Persistence.Entities.Allergen;
 import is.hi.hbv501g.nennis.Persistence.Entities.Diet;
 import is.hi.hbv501g.nennis.Persistence.Entities.Recipe;

@@ -1,5 +1,5 @@
 package is.hi.hbv501g.nennis.Controllers;
-import is.hi.hbv501g.nennis.Api.RecipeFilters;
+import is.hi.hbv501g.nennis.api.RecipeFilters;
 import is.hi.hbv501g.nennis.dto.RecipeDTO;
 import is.hi.hbv501g.nennis.Services.RecipeService;
 import org.springframework.http.ResponseEntity;

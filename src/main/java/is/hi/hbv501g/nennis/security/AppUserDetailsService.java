@@ -9,20 +9,20 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class AppUserDetailsService implements UserDetailsService {
-    private final UserRepository repo;
+    private final UserRepository users;
 
     public AppUserDetailsService(UserRepository repo) {
-        this.repo = repo;
+        this.users = repo;
     }
 
     @Override
-    public UserDetails loadUserByUsername(String identifier) throws UsernameNotFoundException {
-        var u = repo.findByUsernameOrEmail(identifier)
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        var user = users.findByUsernameOrEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        return User.withUsername(u.getEmail() != null ? u.getEmail() : u.getUsername())
-                .password(u.getPassword())
+        return org.springframework.security.core.userdetails.User
+                .withUsername(user.getEmail())
+                .password(user.getPassword()) // BCrypt hash stored in DB
                 .authorities("USER")
                 .build();
-
     }
 }

@@ -1,11 +1,11 @@
 package is.hi.hbv501g.nennis.Services.Implementation;
 
 import is.hi.hbv501g.nennis.Api.RecipeFilters;
-import is.hi.hbv501g.nennis.Persistence.Entities.Allergen;
-import is.hi.hbv501g.nennis.Persistence.Entities.Diet;
-import is.hi.hbv501g.nennis.Persistence.Entities.Recipe;
-import is.hi.hbv501g.nennis.Persistence.Entities.Tag;
-import is.hi.hbv501g.nennis.Persistence.Repositories.RecipeRepository;
+import is.hi.hbv501g.nennis.persistence.entities.Allergen;
+import is.hi.hbv501g.nennis.persistence.entities.Diet;
+import is.hi.hbv501g.nennis.persistence.entities.Recipe;
+import is.hi.hbv501g.nennis.persistence.entities.Tag;
+import is.hi.hbv501g.nennis.persistence.Repositories.RecipeRepository;
 import is.hi.hbv501g.nennis.Services.RecipeService;
 import is.hi.hbv501g.nennis.dto.RecipeDTO;
 import jakarta.persistence.EntityManager;

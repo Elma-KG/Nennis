@@ -1,6 +1,6 @@
-package is.hi.hbv501g.nennis.Persistence.Repositories;
+package is.hi.hbv501g.nennis.persistence.Repositories;
 
-import is.hi.hbv501g.nennis.Persistence.Entities.*;
+import is.hi.hbv501g.nennis.persistence.entities.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.*;
 

@@ -1,4 +1,4 @@
-package is.hi.hbv501g.nennis.Persistence.Entities;
+package is.hi.hbv501g.nennis.persistence.entities;
 
 import jakarta.persistence.*;
 import java.util.*;

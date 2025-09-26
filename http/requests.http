@@ -1,18 +1,10 @@
 ### Register
-POST http://localhost:8080/api/auth/register
+POST http://localhost:8080/user/save
 Content-Type: application/json
 
 {
-  "email": "demo@example.com",
+  "email": "Demo@gmail.com",
   "password": "secret",
-  "name": "Demo"
+  "roles": "ADMIN"
 }
 
-### Login
-POST http://localhost:8080/api/auth/login
-Content-Type: application/json
-
-{
-  "email": "demo@example.com",
-  "password": "secret"
-}

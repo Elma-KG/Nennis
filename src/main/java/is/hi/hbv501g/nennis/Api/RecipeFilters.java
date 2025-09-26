@@ -1,7 +1,7 @@
 package is.hi.hbv501g.nennis.Api;
 
-import is.hi.hbv501g.nennis.Persistence.Entities.Allergen;
-import is.hi.hbv501g.nennis.Persistence.Entities.Diet;
+import is.hi.hbv501g.nennis.persistence.entities.Allergen;
+import is.hi.hbv501g.nennis.persistence.entities.Diet;
 
 import java.util.Set;
 import java.util.UUID;

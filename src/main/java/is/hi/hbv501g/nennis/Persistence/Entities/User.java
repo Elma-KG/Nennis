@@ -11,8 +11,27 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @Column(unique = true)
+
+    @Column(unique = true, nullable = false)
     private String email;
-    private String password;
+
+
+    @Column(nullable = false)
     private String roles;
+
+    @Column(nullable = false)
+    private String password;
+
+    @Column(unique = true, nullable = false)
+    private String username;
+
+    private boolean enabled;
+
+    public User(String username, String email, String password) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+    }
+
+    public User() {}
 }

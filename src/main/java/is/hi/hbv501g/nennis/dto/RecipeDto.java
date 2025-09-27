@@ -6,7 +6,7 @@ import is.hi.hbv501g.nennis.persistence.entities.Diet;
 import java.util.Set;
 import java.util.UUID;
 
-public class RecipeDTO {
+public class RecipeDto {
     public UUID recipeId;
     public String title;
     public String description;

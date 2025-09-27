@@ -1,13 +1,13 @@
 package is.hi.hbv501g.nennis.Services.Implementation;
 
 import is.hi.hbv501g.nennis.Api.RecipeFilters;
+import is.hi.hbv501g.nennis.dto.RecipeDto;
 import is.hi.hbv501g.nennis.persistence.entities.Allergen;
 import is.hi.hbv501g.nennis.persistence.entities.Diet;
 import is.hi.hbv501g.nennis.persistence.entities.Recipe;
 import is.hi.hbv501g.nennis.persistence.entities.Tag;
 import is.hi.hbv501g.nennis.persistence.Repositories.RecipeRepository;
 import is.hi.hbv501g.nennis.Services.RecipeService;
-import is.hi.hbv501g.nennis.dto.RecipeDTO;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
@@ -34,10 +34,10 @@ public class RecipeServiceImplementation implements RecipeService {
      * Gets all recipes that match the given filters.
      * 
      * @param filters the filters to apply to the recipes. If null, no filters are applied.
-     * @return a list of RecipeDTO objects that match the filters.
+     * @return a list of RecipeDto objects that match the filters.
      */
     @Override
-    public List<RecipeDTO> getAll(RecipeFilters filters) {
+    public List<RecipeDto> getAll(RecipeFilters filters) {
         if (filters == null)
             filters = new RecipeFilters();
         List<Recipe> all = recipeRepo.findAll(Sort.by(Sort.Direction.ASC, "title"));
@@ -57,14 +57,14 @@ public class RecipeServiceImplementation implements RecipeService {
 
 
     @Override
-    public RecipeDTO getRecipeById(UUID recipeId) {
+    public RecipeDto getRecipeById(UUID recipeId) {
         Recipe r = recipeRepo.findById(recipeId)
                 .orElseThrow(() -> new NoSuchElementException("Recipe not found: " + recipeId));
         return toDto(r);
     }
 
     @Override
-    public List<RecipeDTO> search(String query, RecipeFilters filters) {
+    public List<RecipeDto> search(String query, RecipeFilters filters) {
         if (filters == null)
             filters = new RecipeFilters();
         filters.query = query;
@@ -72,7 +72,7 @@ public class RecipeServiceImplementation implements RecipeService {
     }
 
     @Override
-    public RecipeDTO addRecipe(RecipeDTO dto) {
+    public RecipeDto addRecipe(RecipeDto dto) {
         Recipe r = new Recipe();
         copyFromDto(dto, r);
         Recipe saved = recipeRepo.save(r);
@@ -80,7 +80,7 @@ public class RecipeServiceImplementation implements RecipeService {
     }
 
     @Override
-    public RecipeDTO updateRecipe(UUID id, RecipeDTO dto) {
+    public RecipeDto updateRecipe(UUID id, RecipeDto dto) {
         Recipe r = recipeRepo.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Recipe not found: " + id));
         copyFromDto(dto, r);
@@ -144,13 +144,13 @@ public class RecipeServiceImplementation implements RecipeService {
     }
 
     /**
-     * Converts a Recipe object into a RecipeDTO object.
+     * Converts a Recipe object into a RecipeDto object.
      * 
      * @param r the Recipe object to convert.
-     * @return the converted RecipeDTO object.
+     * @return the converted RecipeDto object.
      */
-    private RecipeDTO toDto(Recipe r) {
-        RecipeDTO d = new RecipeDTO();
+    private RecipeDto toDto(Recipe r) {
+        RecipeDto d = new RecipeDto();
         d.recipeId = r.getRecipeId();
         d.title = r.getTitle();
         d.description = r.getDescription();
@@ -165,12 +165,12 @@ public class RecipeServiceImplementation implements RecipeService {
     }
 
     /**
-     * Copies the data from a RecipeDTO object into a Recipe object.
+     * Copies the data from a RecipeDto object into a Recipe object.
      *
-     * @param d the RecipeDTO object to copy from.
+     * @param d the RecipeDto object to copy from.
      * @param r the Recipe object to copy into.
      */
-    private void copyFromDto(RecipeDTO d, Recipe r) {
+    private void copyFromDto(RecipeDto d, Recipe r) {
         if (d.title != null)
             r.setTitle(d.title);
         if (d.description != null)

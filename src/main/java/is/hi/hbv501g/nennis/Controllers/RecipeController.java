@@ -1,6 +1,6 @@
 package is.hi.hbv501g.nennis.Controllers;
 import is.hi.hbv501g.nennis.Api.RecipeFilters;
-import is.hi.hbv501g.nennis.dto.RecipeDTO;
+import is.hi.hbv501g.nennis.dto.RecipeDto;
 import is.hi.hbv501g.nennis.Services.RecipeService;
 import org.springframework.http.ResponseEntity;
 
@@ -18,28 +18,28 @@ public class RecipeController {
     }
 
     @GetMapping
-    public ResponseEntity<List<RecipeDTO>> getAll(@ModelAttribute RecipeFilters filters) {
+    public ResponseEntity<List<RecipeDto>> getAll(@ModelAttribute RecipeFilters filters) {
         return ResponseEntity.ok(service.getAll(filters));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<RecipeDTO> getById(@PathVariable UUID id) {
+    public ResponseEntity<RecipeDto> getById(@PathVariable UUID id) {
         return ResponseEntity.ok(service.getRecipeById(id));
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<RecipeDTO>> search(@RequestParam("q") String q,
+    public ResponseEntity<List<RecipeDto>> search(@RequestParam("q") String q,
                                                   @ModelAttribute RecipeFilters filters) {
         return ResponseEntity.ok(service.search(q, filters));
     }
 
     @PostMapping
-    public ResponseEntity<RecipeDTO> add(@RequestBody RecipeDTO dto) {
+    public ResponseEntity<RecipeDto> add(@RequestBody RecipeDto dto) {
         return ResponseEntity.ok(service.addRecipe(dto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<RecipeDTO> update(@PathVariable UUID id, @RequestBody RecipeDTO dto) {
+    public ResponseEntity<RecipeDto> update(@PathVariable UUID id, @RequestBody RecipeDto dto) {
         return ResponseEntity.ok(service.updateRecipe(id, dto));
     }
 

@@ -24,7 +24,7 @@ public class UserController {
 
     @GetMapping("/")
     public String goH0me(){
-        return "This is publicly accessible withing needing authentication ";
+        return "This is publicly accessible without needing authentication ";
     }
     @PostMapping("/user/save")
     public ResponseEntity<Object> saveUSer(@RequestBody User user){

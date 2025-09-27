@@ -1,0 +1,5 @@
+### Register
+POST http://localhost:8080/login
+Content-Type: application/x-www-form-urlencoded
+
+username=demo@gmail.com&password=demo123

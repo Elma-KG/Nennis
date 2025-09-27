@@ -1,5 +1,7 @@
-### Register
-POST http://localhost:8080/login
-Content-Type: application/x-www-form-urlencoded
+POST http://localhost:8080/auth/login
+Content-Type: application/json
 
-username=demo@gmail.com&password=demo123
+{
+  "username": "demo@gmail.com",
+  "password": "demo123"
+}

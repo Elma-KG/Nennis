@@ -1,4 +1,4 @@
-package is.hi.hbv501g.nennis.config;
+package is.hi.hbv501g.nennis.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,7 +34,7 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return new OurUserInfoUserDetailsService();
+        return new AppUserDetailsService();
     }
 
     @Bean

@@ -1,0 +1,11 @@
+### Register
+POST http://localhost:8080/user/save
+Content-Type: application/json
+
+{
+  "email": "jon@gmail.com",
+  "password": "jon123",
+  "roles": "USER"
+}
+
+### ATH við erum með demo@gmail.com með lykilorðið secret (ADMiN) og jon@gmail.com með lykilorðið jon123 og hann er USER

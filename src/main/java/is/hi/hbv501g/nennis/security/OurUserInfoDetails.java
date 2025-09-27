@@ -1,6 +1,6 @@
-package is.hi.hbv501g.nennis.config;
+package is.hi.hbv501g.nennis.security;
 
-import is.hi.hbv501g.nennis.persistence.entities.OurUser;
+import is.hi.hbv501g.nennis.persistence.entities.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,10 +15,10 @@ public class OurUserInfoDetails implements UserDetails {
     private String password;
     private List<GrantedAuthority> roles;
 
-    public OurUserInfoDetails(OurUser ourUser){
-        this.email = ourUser.getEmail();
-        this.password = ourUser.getPassword();
-        this.roles = Arrays.stream(ourUser.getRoles().split(","))
+    public OurUserInfoDetails(User user){
+        this.email = user.getEmail();
+        this.password = user.getPassword();
+        this.roles = Arrays.stream(user.getRoles().split(","))
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
     }

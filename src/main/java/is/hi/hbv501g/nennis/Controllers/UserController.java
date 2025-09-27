@@ -1,7 +1,7 @@
 package is.hi.hbv501g.nennis.controllers;
 
-import is.hi.hbv501g.nennis.persistence.entities.OurUser;
-import is.hi.hbv501g.nennis.persistence.repositories.OurUserRepo;
+import is.hi.hbv501g.nennis.persistence.entities.User;
+import is.hi.hbv501g.nennis.persistence.repositories.UserRepository;
 import is.hi.hbv501g.nennis.persistence.repositories.ProductRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping
-public class Controller {
+public class UserController {
     @Autowired
-    private OurUserRepo ourUserRepo;
+    private UserRepository userRepository;
     @Autowired
     private ProductRepo productRepo;
     @Autowired
@@ -27,13 +27,13 @@ public class Controller {
         return "This is publicly accessible withing needing authentication ";
     }
     @PostMapping("/user/save")
-    public ResponseEntity<Object> saveUSer(@RequestBody OurUser ourUser){
-        ourUser.setPassword(passwordEncoder.encode(ourUser.getPassword()));
-        OurUser result = ourUserRepo.save(ourUser);
+    public ResponseEntity<Object> saveUSer(@RequestBody User user){
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        User result = userRepository.save(user);
         if (result.getId() > 0){
             return ResponseEntity.ok("USer Was Saved");
         }
-        return ResponseEntity.status(404).body("Error, USer Not Saved");
+        return ResponseEntity.status(404).body("Error, User Not Saved");
     }
     @GetMapping("/product/all")
     public ResponseEntity<Object> getAllProducts(){
@@ -42,12 +42,12 @@ public class Controller {
     @GetMapping("/users/all")
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Object> getAllUsers(){
-        return ResponseEntity.ok(ourUserRepo.findAll());
+        return ResponseEntity.ok(userRepository.findAll());
     }
     @GetMapping("/users/single")
     @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('USER')")
     public ResponseEntity<Object> getMyDetails(){
-        return ResponseEntity.ok(ourUserRepo.findByEmail(getLoggedInUserDetails().getUsername()));
+        return ResponseEntity.ok(userRepository.findByEmail(getLoggedInUserDetails().getUsername()));
     }
 
     public UserDetails getLoggedInUserDetails(){

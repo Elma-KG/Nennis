@@ -23,6 +23,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         this.userDetailsService = uds;
     }
 
+    /**
+     * This method is responsible for validating JWT tokens and authenticating users.
+     * It takes the Authorization header from the incoming request and checks if it is valid.
+     * If valid, it sets the authentication object in the SecurityContextHolder.
+     * If not valid, it does not do anything and lets the request pass through.
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
             throws ServletException, IOException {

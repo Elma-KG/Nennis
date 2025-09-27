@@ -1,10 +1,11 @@
 package is.hi.hbv501g.nennis.security;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
@@ -23,6 +24,7 @@ public class JwtService {
 
     /**
      * Generates a JWT token for an authenticated user
+     *
      * @param authentication The authentication object containing user details
      * @return A JWT token as a String
      */
@@ -33,6 +35,7 @@ public class JwtService {
 
     /**
      * Generates a JWT token for a subject (username)
+     *
      * @param subject The subject (username) to include in the token
      * @return A JWT token as a String
      */
@@ -48,6 +51,7 @@ public class JwtService {
 
     /**
      * Extracts the username from a JWT token
+     *
      * @param token The JWT token
      * @return The username extracted from the token
      */
@@ -62,6 +66,7 @@ public class JwtService {
 
     /**
      * Validates a JWT token
+     *
      * @param token The JWT token to validate
      * @return true if the token is valid, false otherwise
      */

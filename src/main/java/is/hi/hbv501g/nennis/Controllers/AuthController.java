@@ -20,6 +20,12 @@ public class AuthController {
         this.jwtService = jwtService;
     }
 
+    /**
+     * Authenticates a user with the given username and password, and returns a JWT token if the authentication is successful.
+     *
+     * @param loginRequest The username and password to authenticate with.
+     * @return A ResponseEntity containing a TokenResponse with the JWT token, or an error response if the authentication fails.
+     */
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         var authentication = authManager.authenticate(
@@ -30,6 +36,9 @@ public class AuthController {
         return ResponseEntity.ok(new TokenResponse(token));
     }
 
-    record LoginRequest(String username, String password) {}
-    record TokenResponse(String token) {}
+    record LoginRequest(String username, String password) {
+    }
+
+    record TokenResponse(String token) {
+    }
 }
